@@ -12,4 +12,5 @@ First version:
 - `adaptiveDifficulty`.
 - `leadingZeroBits` and `sha256`.
 - In Postgres: `limitRate` (layered rate limits, all or nothing), `pruneRateLimits`, `spendFromCap` (hard
-  spending caps per day or month) and `migrateProtection` for their tables.
+  spending caps per day or month), `redeemSolution` and `pruneUsedChallenges` (single-use proof-of-work
+  solutions) and `migrateProtection` for their tables.

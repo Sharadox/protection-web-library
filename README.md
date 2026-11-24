@@ -86,7 +86,7 @@ not for secrets.
 
 ### `protection-migration`: `migrateProtection(database)`, `protectionMigrations`, `PROTECTION_MIGRATION_TABLE`
 
-Creates `rate_limit_bucket` and `spending_cap_usage`. Type a Kysely instance with `ProtectionDatabase`
+Creates `rate_limit_bucket`, `spending_cap_usage` and `used_challenge`. Type a Kysely instance with `ProtectionDatabase`
 (`protection-database/type`), or include it in the application's own schema type.
 
 ### `rate-limit`: `limitRate(database, layers, { secret, now? })` → `{ allowed, retryAfterSeconds, blockedBy }`
@@ -108,6 +108,12 @@ const result = await limitRate(
   { secret: process.env.RATE_LIMIT_SECRET! },
 );
 ```
+
+### `solution-redemption`: `redeemSolution(database, solution, { secret, now? })`
+
+`verifySolution` plus spending it: a valid solution counts once (its challenge id is kept until the challenge
+expires), so a solved challenge can't be replayed. Reasons: `signature`, `expired`, `work`, `used`.
+`pruneUsedChallenges(database, { now? })` (`used-challenge-prune`) forgets expired ones, from a daily job.
 
 ### `rate-limit-prune`: `pruneRateLimits(database, { before })` → deleted count
 

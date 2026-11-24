@@ -11,6 +11,8 @@
 - /sha-256: sha256(bytes: Uint8Array) → 32-byte Uint8Array, synchronous FIPS 180-4; not for secrets
 - /protection-migration: migrateProtection(database) → applied names (own table protection_migration); protectionMigrations; tables rate_limit_bucket(key HMAC, tokens, updated_at), spending_cap_usage(name, period_start, used); type ProtectionDatabase at /protection-database/type
 - /rate-limit: limitRate(database, [{ key, rule: { capacity, refillPerSecond }, cost? }], { secret (≥32), now? }) → { allowed, retryAfterSeconds (max of blockers), blockedBy (keys) }; all layers or none; one transaction, FOR UPDATE in key order; duplicate keys throw
+- /solution-redemption: redeemSolution(database, solution, { secret, now? }) → { valid: true, id } | { valid: false, reason: "signature" | "expired" | "work" | "used" }; stores id in used_challenge until expiresAt
+- /used-challenge-prune: pruneUsedChallenges(database, { now? }) → number deleted
 - /rate-limit-prune: pruneRateLimits(database, { before: Date }) → number deleted
 - /spending-cap: spendFromCap(database, { name, limit, period: "day" | "month" (UTC) }, { now?, cost = 1 (positive integer) }) → { allowed, used, remaining, resetsAt }; atomic upsert; refused spends use nothing
 - License: Sharadox Open Source License 0.1.0
