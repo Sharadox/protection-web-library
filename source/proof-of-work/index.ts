@@ -1,4 +1,5 @@
-import { createHash, createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { uuidVersion7 } from "@sharadox/web-library/identifier/uuid-version-7";
 import { leadingZeroBits } from "@sharadox/protection-web-library/leading-zero-bits";
 import type {
   Challenge,
@@ -30,7 +31,7 @@ export function createChallenge({
 }: CreateChallengeOptions): Challenge {
   checkSecret(secret);
   const fields = {
-    id: randomUUID(),
+    id: uuidVersion7({ now }),
     salt: randomBytes(16).toString("base64url"),
     difficulty,
     expiresAt: now + lifetimeSeconds * 1000,

@@ -14,6 +14,7 @@ test("challenges are unique and expire after five minutes by default", () => {
   const first = createChallenge({ secret, difficulty: 8, now: 0 });
   const second = createChallenge({ secret, difficulty: 8, now: 0 });
   expect(first.id).not.toBe(second.id);
+  expect(first.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   expect(first.salt).not.toBe(second.salt);
   expect(first.expiresAt).toBe(300_000);
   expect(createChallenge({ secret, difficulty: 8, now: 0, lifetimeSeconds: 10 }).expiresAt).toBe(10_000);
