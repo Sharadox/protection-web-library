@@ -1,0 +1,12 @@
+# @sharadox/protection-web-library
+
+> Protection for web forms and APIs: token-bucket rate limits, IPv6 /64 address groups, a signed stateless proof-of-work challenge with a browser solver, and adaptive difficulty. Pure or stateless; callers store buckets and used challenge ids.
+
+- /token-bucket: takeToken(bucket?: { tokens, updatedAt }, { capacity, refillPerSecond }, now (ms), cost = 1) → { allowed, bucket, retryAfterSeconds }; new key starts full; backwards clock refills nothing
+- /address-group: addressGroup(address) → IPv4 as is | IPv6 "<first 4 groups>::/64" | ::ffff:a.b.c.d → a.b.c.d | "unknown"
+- /proof-of-work: createChallenge({ secret (≥32 chars), difficulty, now = Date.now(), lifetimeSeconds = 300 }) → { id, salt, difficulty, expiresAt, signature (HMAC-SHA-256 base64url) }; verifySolution({ challenge, nonce }, { secret, now }) → { valid: true, id } | { valid: false, reason: "signature" | "expired" | "work" }; caller stores used ids until expiresAt
+- /proof-of-work-solver: solveChallenge({ salt, difficulty }) → Promise<nonce string>; SHA-256(`salt:nonce`) with ≥ difficulty leading zero bits; yields every 2000 attempts; browser-safe
+- /adaptive-difficulty: adaptiveDifficulty(strikes, { base = 14, maximum = 22 }) → min(maximum, base + max(0, strikes))
+- /leading-zero-bits: leadingZeroBits(bytes) → number
+- /sha-256: sha256(bytes: Uint8Array) → 32-byte Uint8Array, synchronous FIPS 180-4; not for secrets
+- License: Sharadox Open Source License 0.1.0
