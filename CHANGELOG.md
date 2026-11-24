@@ -11,3 +11,5 @@ First version:
 - `createChallenge`, `verifySolution` and `solveChallenge`: a signed, stateless proof of work.
 - `adaptiveDifficulty`.
 - `leadingZeroBits` and `sha256`.
+- In Postgres: `limitRate` (layered rate limits, all or nothing), `pruneRateLimits`, `spendFromCap` (hard
+  spending caps per day or month) and `migrateProtection` for their tables.
