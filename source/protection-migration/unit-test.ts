@@ -23,6 +23,7 @@ test("creates the protection tables, tracked in their own migration table", asyn
     PROTECTION_MIGRATION_TABLE,
     "rate_limit_bucket",
     "spending_cap_usage",
+    "used_challenge",
   ]);
 });
 

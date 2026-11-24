@@ -5,7 +5,7 @@ import type { Migration } from "@sharadox/database-web-library/migration/type";
 /** The table that records which protection migrations a database has applied (apart from the application's own). */
 export const PROTECTION_MIGRATION_TABLE = "protection_migration";
 
-/** The protection tables, forward only: rate-limit buckets and spending-cap usage. */
+/** The protection tables, forward only: rate-limit buckets, spending-cap usage and used challenges. */
 export const protectionMigrations: Migration[] = [
   {
     name: "0001-rate-limit-and-spending-cap",
@@ -22,6 +22,16 @@ export const protectionMigrations: Migration[] = [
         used integer not null check (used >= 0),
         primary key (name, period_start)
       );
+    `,
+  },
+  {
+    name: "0002-used-challenge",
+    sql: `
+      create table used_challenge (
+        id text primary key check (length(id) <= 100),
+        expires_at timestamptz not null
+      );
+      create index used_challenge_expires_at on used_challenge (expires_at);
     `,
   },
 ];
