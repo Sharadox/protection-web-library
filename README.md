@@ -5,9 +5,10 @@ Protection for web forms and APIs against repeated tries, bots and attacks on th
 - token-bucket rate limits;
 - address groups that treat a whole IPv6 /64 as one visitor;
 - an invisible proof-of-work challenge (no third-party captcha, no puzzle);
-- difficulty that rises with each strike.
+- difficulty that rises with each strike;
+- layered rate limits and hard spending caps kept in Postgres (through `@sharadox/database-web-library`).
 
-Everything is pure or stateless: the caller decides where buckets and used challenge ids are stored.
+The building blocks are pure or stateless; the Postgres parts store only keyed hashes, never contacts or addresses.
 
 ## Install
 
@@ -20,6 +21,10 @@ pnpm add @sharadox/protection-web-library
 | Variable               | Meaning                                                                                                            |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `PROOF_OF_WORK_SECRET` | At least 32 random characters, server only. It signs challenges (suggested name: the library only takes `secret`). |
+| `RATE_LIMIT_SECRET`    | At least 32 random characters, server only. Rate-limit keys are stored as HMACs under it (suggested name).         |
+
+The Postgres parts need their tables: run `migrateProtection(database)` when the application migrates. They are
+tracked in their own table (`protection_migration`), apart from the application's migrations.
 
 ## API
 
@@ -78,6 +83,40 @@ Adds one bit per strike, which doubles the work, from `base` up to `maximum`.
 
 The building blocks of the solver. `sha256` is a synchronous FIPS 180-4 SHA-256, made for many small hashes. It is
 not for secrets.
+
+### `protection-migration`: `migrateProtection(database)`, `protectionMigrations`, `PROTECTION_MIGRATION_TABLE`
+
+Creates `rate_limit_bucket` and `spending_cap_usage`. Type a Kysely instance with `ProtectionDatabase`
+(`protection-database/type`), or include it in the application's own schema type.
+
+### `rate-limit`: `limitRate(database, layers, { secret, now? })` → `{ allowed, retryAfterSeconds, blockedBy }`
+
+Every layer must have the tokens, or nothing is taken from any of them.
+
+- One transaction, rows locked in a fixed order: concurrent requests never pass a capacity and never deadlock.
+- `blockedBy` lists the keys that blocked, as given: count strikes with it for `adaptiveDifficulty`.
+- The same key twice is refused.
+
+```ts
+const result = await limitRate(
+  database,
+  [
+    { key: `contact:${email}`, rule: { capacity: 5, refillPerSecond: 1 / 600 } },
+    { key: `address:${addressGroup(ip)}`, rule: { capacity: 20, refillPerSecond: 1 / 60 } },
+    { key: "global:sign-in", rule: { capacity: 500, refillPerSecond: 1 } },
+  ],
+  { secret: process.env.RATE_LIMIT_SECRET! },
+);
+```
+
+### `rate-limit-prune`: `pruneRateLimits(database, { before })` → deleted count
+
+For a daily job. Pick `before` so that every bucket untouched since then would be full again.
+
+### `spending-cap`: `spendFromCap(database, { name, limit, period: "day" | "month" }, { now?, cost = 1 })` → `{ allowed, used, remaining, resetsAt }`
+
+A hard cap per UTC day or month on anything that costs money. Past the limit it refuses: pause and alert, never
+spend. It is one atomic statement, and a refused spend uses nothing.
 
 ## License
 

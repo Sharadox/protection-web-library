@@ -53,9 +53,12 @@
     "*.{json,md,yml,yaml}": "prettier --write"
   },
   "dependencies": {
-    "@sharadox/web-library": "^0.11.1"
+    "@sharadox/database-web-library": "0.1.0-development.6",
+    "@sharadox/web-library": "^0.11.1",
+    "kysely": "^0.28.19"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.16",
     "@sharadox/es-lint-configuration-web-library": "^0.1.3",
     "@sharadox/library-build-web-library": "^0.2.1",
     "@sharadox/prettier-configuration-web-library": "^0.1.2",
