@@ -86,7 +86,8 @@ not for secrets.
 
 ### `protection-migration`: `migrateProtection(database)`, `protectionMigrations`, `PROTECTION_MIGRATION_TABLE`
 
-Creates `rate_limit_bucket`, `spending_cap_usage` and `used_challenge`. Type a Kysely instance with `ProtectionDatabase`
+Creates `rate_limit_bucket`, `spending_cap_usage` and `used_challenge`, every row with a UUIDv7 `id` (challenge ids
+are UUIDv7 too). Type a Kysely instance with `ProtectionDatabase`
 (`protection-database/type`), or include it in the application's own schema type.
 
 ### `rate-limit`: `limitRate(database, layers, { secret, now? })` → `{ allowed, retryAfterSeconds, blockedBy }`

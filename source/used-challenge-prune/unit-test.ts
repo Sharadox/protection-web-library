@@ -16,11 +16,13 @@ test("forgets used challenges once they have expired", async () => {
   await memory.database
     .insertInto("used_challenge")
     .values([
-      { id: "old", expires_at: new Date(1_000) },
-      { id: "new", expires_at: new Date(9_000) },
+      { id: "0198f5a2-7a4c-7000-8000-000000000001", expires_at: new Date(1_000) },
+      { id: "0198f5a2-7a4c-7000-8000-000000000002", expires_at: new Date(9_000) },
     ])
     .execute();
   expect(await pruneUsedChallenges(memory.database, { now: 5_000 })).toBe(1);
-  expect(await memory.database.selectFrom("used_challenge").select("id").execute()).toEqual([{ id: "new" }]);
+  expect(await memory.database.selectFrom("used_challenge").select("id").execute()).toEqual([
+    { id: "0198f5a2-7a4c-7000-8000-000000000002" },
+  ]);
   expect(await pruneUsedChallenges(memory.database)).toBe(1);
 });
